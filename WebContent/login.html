@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="ISO-8859-1">
+	<title>Login</title>
+	<link rel="stylesheet" type="text/css" href="/PlaylistMaker/css/style.css">
+</head>
+
+<body>
+<div class="main_div">
+
+	<h1 class="title">Playlist Maker</h1>
+	
+	<div class="list_div">
+		<h1>Log in</h1>
+		<p>Please insert username and password!</p>
+		
+		<form method="post" action="/PlaylistMaker/login">
+			<label for="username"><b>Username</b></label>
+	    	<input type="text" placeholder="Enter Username" name="username" required/>
+	    	<p></p>
+	    	<label for="password"><b>Password</b></label>
+	    	<input type="password" placeholder="Enter Password" name="password" required/>
+	    	<p></p>
+	    	<div class="button_div">
+	    		<button class="button" type="submit">Login</button>
+	    	</div>
+		</form>
+	</div>
+</div>
+	
+</body>
+
+</html>

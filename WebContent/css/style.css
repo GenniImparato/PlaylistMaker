@@ -1,0 +1,110 @@
+@charset "ISO-8859-1";
+
+html 
+{
+    /* To make use of full height of page*/
+    min-height: 100%;
+    margin: 0;
+}
+
+body 
+{
+  text-align: center;
+  background: rgb(180,178,0);
+  background: linear-gradient(0deg, rgba(180,178,219,1) 0%, rgba(212,249,255,1) 100%, rgba(0,212,255,1) 100%);
+  height: 100%;
+}
+
+.main_div
+{
+  border-radius: 50px;
+  background: rgb(237,237,237);
+  background: linear-gradient(180deg, rgba(237,237,237,1) 0%, rgba(255,255,255,1) 100%);
+  padding: 10px 20px 20px 20px;
+  border: 0px solid #ccc;
+  text-align: center;
+  width: 80%;
+  margin: auto;
+  max-width: 850px;
+}
+
+.button_div
+{
+	text-align: center;
+	border: 0px;
+	background-color: transparent;
+}
+
+.list_div
+{
+	border-radius: 30px;
+	text-align: center;
+	border: 0px solid #888888;
+	padding: 1px 8px 15px 8px;
+	width: auto;
+	margin: auto auto 18px ;
+	background: rgb(224,224,224);
+    background: linear-gradient(40deg, rgba(224,224,224,1) 0%, rgba(242,229,217,1) 100%);
+} 
+
+h1, h2, h3, label
+{
+    text-align: center;
+    color: #595959;
+}
+
+p
+{
+    text-align: center;
+}
+
+input[type=text], input[type=password], select
+{
+  width: 50%;
+  padding: 12px 20px;
+  margin: 8px 0;
+  display: inline-block;
+  border: 2px solid #ccc;
+  border-radius: 20px;
+  box-sizing: border-box;
+}
+
+input[type="file"] 
+{
+  width: 50%;
+  padding: 12px 20px;
+  margin: 8px 0;
+  display: inline-block;
+  box-sizing: border-box;
+}
+
+
+.button
+{
+  display: inline-block;
+  padding: 14px 14px;
+  font-size: 18px;
+  cursor: pointer;
+  text-align: center;
+  text-decoration: none;
+  outline: none;
+  color: #fff;
+  background-color: rgb(240, 130, 90);
+  border-radius: 25px;
+  margin: 5px 5px 5px 5px;
+  border: 0px solid;
+}
+
+.title
+{
+    font-family: M PLUS 1p, sans-serif;
+    font-size: 45px;
+    font-weight: bold;
+    color: rgba(163, 102, 10, 1);
+    text-transform: none;
+    font-style: normal;
+    text-decoration: none;
+    line-height: 2.3em;
+    letter-spacing: -1px;
+    margin: 5px 5px 5px 5px;
+}
