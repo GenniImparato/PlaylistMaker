@@ -1,3 +1,7 @@
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
+<%@ page language="java" contentType="text/html; charset=ISO-8859-1"
+	pageEncoding="ISO-8859-1"%>
+
 <!DOCTYPE html>
 <html>
 
@@ -15,9 +19,8 @@
 	<h1 class="title">Playlist Maker</h1>
 	
 	<div class="list_div">
-		<h2>Fail!.</h2>
-		<p>An error occured during upload!.</p>
-		<p>The song has not been uploaded!.</p>
+		<h2 style="color:red;">Song upload failed.</h2>
+		<p><c:out value="${lastMessage}"></c:out></p>
 		
 		<div class="button_div">
 			<a class="button" href="/PlaylistMaker/HomePage"> back to Home Page </a>

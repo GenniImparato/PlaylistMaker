@@ -33,10 +33,13 @@
 			
 			<c:choose>
 				<c:when test="${playlists.size()>0}">
+				<div>
 					<c:forEach var="pl" items="${playlists}">
-						<button class="button" href="/PlaylistMaker/HomePage"><c:out value="${pl.name}"/></button>
-						
+						<a class="button" href="/PlaylistMaker/PlaylistPage?playlistId=<c:out value="${pl.id}"/>">
+							<c:out value="${pl.name}"/>
+						</a>
 					</c:forEach>
+				</div>
 				</c:when>
 				<c:otherwise>
 					<p>No playlists.</p>
@@ -48,7 +51,7 @@
 			<h2>Create new playlist:</h2>
 			
 			<form method="post" action="/PlaylistMaker/createPlaylist">
-				<label for="name"><b>Name: </b></label>
+				<label for="name"><b>Name*: </b></label>
 		    	<input type="text" placeholder="Enter Playlist name" name="name" required/>
 		    	
 		    	<div class="button_div">
@@ -62,23 +65,23 @@
 			
 			<form method="post" action="/PlaylistMaker/uploadSong" enctype="multipart/form-data">
 				<p>
-				<label for="title"><b>Title: </b></label>
+				<label for="title"><b>Title*: </b></label>
 			    <input type="text" placeholder="Enter Title" name="title" required/>
 		    	</p>
 		    	
 		    	<p>
 				<label for="artist"><b>Artist: </b></label>
-			    <input type="text" placeholder="Enter Artist" name="artist" required/>
+			    <input type="text" placeholder="Enter Artist" name="artist"/>
 		    	</p>
 		    	
 		    	<p>
-				<label for="album"><b>Album: </b></label>
-			    <input type="text" placeholder="Enter Album" name="album" required/>
+				<label for="album"><b>Album:</b></label>
+			    <input type="text" placeholder="Enter Album" name="album"/>
 		    	</p>
 		    	
 		    	<p>
-				<label for="year"><b>Year: </b></label>
-			    <input type="text" placeholder="Enter Year" name="year" required/>
+				<label for="year"><b>Year:</b></label>
+			    <input type="text" placeholder="Enter Year" name="year"/>
 		    	</p>
 		    	
 		    	<p>
@@ -99,10 +102,17 @@
 		    	
 		    	
 		    	<p>
-				<label class="custom-file-upload"><b>File</b>:
-					<input type="file" name ="audio" accept="audio/*">
+				<label class="custom-file-upload"><b>Audio File*:</b>
+					<input type="file" name ="audio" accept="audio/*" required>
 				</label>
-		    	
+		    	</p>
+
+<p>
+				<label class="custom-file-upload"><b>Image File:</b>
+					<input type="file" name ="image" accept="image/*">
+				</label>
+		    	</p>
+
 		    	<div class="button_div">
 		    		<input class="button" type="submit" value="Upload Song">
 		    	</div>

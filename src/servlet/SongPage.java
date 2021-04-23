@@ -17,14 +17,16 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import DAO.PlaylistDAO;
+import DAO.SongDAO;
 import bean.Playlist;
+import bean.Song;
 import bean.User;
 
 /**
  * Servlet implementation class HomePage
  */
-@WebServlet("/HomePage")
-public class HomePage extends HttpServlet 
+@WebServlet("/SongPage")
+public class SongPage extends HttpServlet 
 {
 	private static final long serialVersionUID = 1L;
 	private Connection connection = null;
@@ -65,20 +67,39 @@ public class HomePage extends HttpServlet
 		}
 		else 
 		{
-			PlaylistDAO pDAO = new PlaylistDAO(connection);
-			List<Playlist> playlists;
+			SongDAO sDAO = new SongDAO(connection);
+
+			if (session == null || session.getAttribute("currentUser") == null) 
+			{
+				String path = getServletContext().getContextPath() + "/login.html";
+				response.sendRedirect(path);
+				return;
+			}
+			
 			int userId = ((User) session.getAttribute("currentUser")).getId();
+			
+			int songId = Integer.parseInt(request.getParameter("songId"));
+			Song s = null;
+			
 			try 
 			{
-				playlists = pDAO.getPlaylistsByUser(userId);
-				session.setAttribute("playlists", playlists);
-				RequestDispatcher dispatcher = getServletContext().getRequestDispatcher("/WEB-INF/home.jsp");
-				dispatcher.forward(request, response);
+				s = sDAO.getSongById(songId);
 			} 
 			catch (SQLException e) 
 			{
 				response.sendError(500, "Database access failed");
-			}		
+			}
+			
+			if(s.getUserId() != userId)
+			{
+				response.sendError(500, "Not authorized to see this song!");
+				return;
+			}
+				
+			session.setAttribute("lastSong", s);
+			RequestDispatcher dispatcher = getServletContext().getRequestDispatcher("/song_info.jsp");
+			dispatcher.forward(request, response);
+					
 		}
 	}
 

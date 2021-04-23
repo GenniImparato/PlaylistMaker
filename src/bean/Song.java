@@ -3,11 +3,14 @@ package bean;
 public class Song 
 {
 	private int 	id;
+	private int		userid;
 	private String 	title;
 	private String 	artist;
 	private String 	genre;
 	private String 	album;
-	private Integer year;
+	private int 	year;
+	private String	audio;
+	private String  image;
 	
 	public int getId() 
 	{
@@ -66,5 +69,35 @@ public class Song
 	public void setYear(Integer year) 
 	{
 		this.year = year;
+	}
+
+	public String getAudio() 
+	{
+		return audio;
+	}
+
+	public void setAudio(String audio) 
+	{
+		this.audio = audio;
+	}
+
+	public String getImage() 
+	{
+		return image;
+	}
+
+	public void setImage(String image)
+	{
+		this.image = image;
+	}
+
+	public int getUserId() 
+	{
+		return userid;
+	}
+
+	public void setUserId(int userid) 
+	{
+		this.userid = userid;
 	}
 }

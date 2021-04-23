@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import bean.Playlist;
+import bean.Song;
 
 public class PlaylistDAO 
 {
@@ -16,6 +17,93 @@ public class PlaylistDAO
 	public PlaylistDAO(Connection connection)
 	{
 		this.con = connection;
+	}
+	
+	public Playlist getPlaylistById(int playlistId) throws SQLException
+	{
+		Playlist pl = new Playlist();
+		String query = "SELECT * FROM playlist WHERE id = ?";
+		ResultSet result = null;
+		PreparedStatement pstatement = null;
+		try 
+		{
+			pstatement = con.prepareStatement(query);
+			pstatement.setInt(1, playlistId);
+			result = pstatement.executeQuery();
+			if(result.next()) 
+			{
+				pl.setId(result.getInt("id"));
+				pl.setName(result.getString("name"));
+				pl.setUserId(result.getInt("user_id"));
+			}
+		} 
+		catch (SQLException e) 
+		{
+		    e.printStackTrace();
+			throw new SQLException(e);
+		} 
+		finally 
+		{
+			try 
+			{
+				result.close();
+			} 
+			catch (Exception e1) 
+			{
+				throw new SQLException(e1);
+			}
+			try 
+			{
+				pstatement.close();
+			} 
+			catch (Exception e2) 
+			{
+				throw new SQLException(e2);
+			}
+		}
+		
+		query = "SELECT song_id FROM song_in_playlist WHERE playlist_id = ?";
+		List<Song> songs = new ArrayList<Song>();
+		
+		try 
+		{
+			pstatement = con.prepareStatement(query);
+			pstatement.setInt(1, playlistId);
+			result = pstatement.executeQuery();
+			while(result.next()) 
+			{
+				SongDAO sDao = new SongDAO(con);
+				songs.add(sDao.getSongById(result.getInt("song_id")));
+			}
+			
+			pl.setSongs(songs);
+		} 
+		catch (SQLException e) 
+		{
+		    e.printStackTrace();
+			throw new SQLException(e);
+		} 
+		finally 
+		{
+			try 
+			{
+				result.close();
+			} 
+			catch (Exception e1) 
+			{
+				throw new SQLException(e1);
+			}
+			try 
+			{
+				pstatement.close();
+			} 
+			catch (Exception e2) 
+			{
+				throw new SQLException(e2);
+			}
+		}
+		
+		return pl;
 	}
 
 	public List<Playlist> getPlaylistsByUser(int userId) throws SQLException

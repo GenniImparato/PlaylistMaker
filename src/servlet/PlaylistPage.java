@@ -23,8 +23,8 @@ import bean.User;
 /**
  * Servlet implementation class HomePage
  */
-@WebServlet("/HomePage")
-public class HomePage extends HttpServlet 
+@WebServlet("/PlaylistPage")
+public class PlaylistPage extends HttpServlet 
 {
 	private static final long serialVersionUID = 1L;
 	private Connection connection = null;
@@ -66,13 +66,29 @@ public class HomePage extends HttpServlet
 		else 
 		{
 			PlaylistDAO pDAO = new PlaylistDAO(connection);
-			List<Playlist> playlists;
+
+			if (session == null || session.getAttribute("currentUser") == null) 
+			{
+				String path = getServletContext().getContextPath() + "/login.html";
+				response.sendRedirect(path);
+				return;
+			}
+			
 			int userId = ((User) session.getAttribute("currentUser")).getId();
+			
+			int playlistId = Integer.parseInt(request.getParameter("playlistId"));
 			try 
 			{
-				playlists = pDAO.getPlaylistsByUser(userId);
-				session.setAttribute("playlists", playlists);
-				RequestDispatcher dispatcher = getServletContext().getRequestDispatcher("/WEB-INF/home.jsp");
+				Playlist pl = pDAO.getPlaylistById(playlistId);
+				
+				if(pl.getUserId() != userId)
+				{
+					response.sendError(500, "Not authorized to see this playlist!");
+					return;
+				}
+				
+				session.setAttribute("currentPlaylist", pl);
+				RequestDispatcher dispatcher = getServletContext().getRequestDispatcher("/WEB-INF/playlist.jsp");
 				dispatcher.forward(request, response);
 			} 
 			catch (SQLException e) 
