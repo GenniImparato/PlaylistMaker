@@ -87,16 +87,7 @@
 		    	<p>
 				<label for="genre"><b>Genre: </b></label>
 			    <select  id="genre" name="genre">
-					    <option>Country</option>
-					    <option>Hip-hop</option>
-					    <option>Indie rock</option>
-					    <option>Jazz</option>
-					    <option>K-pop</option>
-					    <option>Metal</option>
-					    <option>Pop</option>
-					    <option>Rap</option>
-					    <option>Rhythm & blues (R&B)</option>
-					    <option>Rock</option>
+			    	<jsp:include page="genres.jsp"/>	    
 				</select>
 		    	</p>
 		    	

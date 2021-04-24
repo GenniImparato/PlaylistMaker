@@ -105,8 +105,8 @@ public class UploadSong extends HttpServlet
 			}
 		}
 		
-		if(request.getSession().getAttribute("currentUser") != null)
-			s.setId(((User) request.getSession().getAttribute("currentUser")).getId());
+		if(request.getSession(false).getAttribute("currentUser") != null)
+			s.setUserId(((User) request.getSession(false).getAttribute("currentUser")).getId());
 		else
 		{
 			response.sendRedirect(getServletContext().getContextPath() + "/login.html");

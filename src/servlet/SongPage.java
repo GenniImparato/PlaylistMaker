@@ -97,9 +97,7 @@ public class SongPage extends HttpServlet
 			}
 				
 			session.setAttribute("lastSong", s);
-			RequestDispatcher dispatcher = getServletContext().getRequestDispatcher("/song_info.jsp");
-			dispatcher.forward(request, response);
-					
+			response.sendRedirect(request.getContextPath() + "/song.jsp");			
 		}
 	}
 

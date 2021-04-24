@@ -30,9 +30,9 @@ body
   text-align: center;
   width: fit-content;
   min-width:500px;
-  margin-left: 100px;
-  margin-right: 100px;
-  display: inline-block;
+  margin-left: auto;
+  margin-right: auto;
+  display: inline-flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
@@ -43,6 +43,10 @@ body
 	text-align: center;
 	border: 0px;
 	background-color: transparent;
+	display:flex;
+	flex-direction: row;
+	align-items: center;
+	justify-content: space-around;
 }
 
 .list_div
@@ -51,8 +55,8 @@ body
 	text-align: center;
 	border: 0px solid #888888;
 	padding: 1px 8px 15px 8px;
-	min-width: 700px;
-	margin: 10px 300px ;
+	min-width: 600px;
+	margin: 10px 100px;
 	background: rgb(224,224,224);
     background: linear-gradient(40deg, rgba(224,224,224,1) 0%, rgba(242,229,217,1) 100%);
     display : inline-flex;
@@ -69,6 +73,33 @@ p
 {
     text-align: center;
 }
+
+
+table
+{
+  width: 100%;
+  border: 2px dashed #ccc;
+  border-radius: 20px;
+  color: #595959;
+}
+
+table td
+{
+    border-right: 2px dashed #ccc;
+    padding: 5px 10px;
+    color: #595959;
+    width:20x;
+}
+
+table tr
+{
+    border: 2px dashed #ccc;
+}
+
+table td:last-child {
+    border-right: none;
+}
+
 
 input[type=text], input[type=password], select
 {
@@ -93,7 +124,8 @@ input[type="file"]
 
 .button
 {
-  display: inline-block;
+  display : inline-flex;
+  flex-direction: column;
   padding: 14px 14px;
   font-size: 18px;
   cursor: pointer;

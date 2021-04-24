@@ -13,10 +13,21 @@ import bean.Song;
 public class PlaylistDAO 
 {
 	private Connection con;
+	boolean ignoreImages;
+	boolean ignoreAudios;
 
 	public PlaylistDAO(Connection connection)
 	{
 		this.con = connection;
+		this.ignoreAudios = false;
+		this.ignoreImages = false;
+	}
+	
+	public PlaylistDAO(Connection connection, boolean ignoreImages, boolean ignoreAudios)
+	{
+		this.con = connection;
+		this.ignoreAudios = ignoreAudios;
+		this.ignoreImages = ignoreImages;
 	}
 	
 	public Playlist getPlaylistById(int playlistId) throws SQLException
@@ -62,7 +73,7 @@ public class PlaylistDAO
 			}
 		}
 		
-		query = "SELECT song_id FROM song_in_playlist WHERE playlist_id = ?";
+		query = "SELECT song_id FROM song_in_playlist WHERE playlist_id = ? order by (SELECT year from song where id = song_id) DESC";
 		List<Song> songs = new ArrayList<Song>();
 		
 		try 
@@ -72,7 +83,7 @@ public class PlaylistDAO
 			result = pstatement.executeQuery();
 			while(result.next()) 
 			{
-				SongDAO sDao = new SongDAO(con);
+				SongDAO sDao = new SongDAO(con, ignoreImages, ignoreAudios);
 				songs.add(sDao.getSongById(result.getInt("song_id")));
 			}
 			
@@ -180,6 +191,59 @@ public class PlaylistDAO
 			catch (Exception e1) {}
 		}
 	}
+	
+	public void addSongToPlaylist(int playlistId, int songId) throws SQLException 
+	{
+		String query = "INSERT into song_in_playlist (playlist_id, song_id) VALUES(?, ?)";
+		PreparedStatement pstatement = null;	
+		try 
+		{
+			pstatement = con.prepareStatement(query);
+			pstatement.setInt(1, playlistId);
+			pstatement.setInt(2, songId);
+			pstatement.executeUpdate();
+		} 
+		catch (SQLException e) 
+		{
+		    e.printStackTrace();
+			throw new SQLException(e);
+		} 
+		finally 
+		{
+			try 
+			{
+				pstatement.close();
+			} 
+			catch (Exception e1) {}
+		}
+	}
+	
+	public void removeSongFromPlaylist(int playlistId, int songId) throws SQLException 
+	{
+		String query = "DELETE from song_in_playlist WHERE playlist_id = ? and song_id = ?";
+		PreparedStatement pstatement = null;	
+		try 
+		{
+			pstatement = con.prepareStatement(query);
+			pstatement.setInt(1, playlistId);
+			pstatement.setInt(2, songId);
+			pstatement.executeUpdate();
+		} 
+		catch (SQLException e) 
+		{
+		    e.printStackTrace();
+			throw new SQLException(e);
+		} 
+		finally 
+		{
+			try 
+			{
+				pstatement.close();
+			} 
+			catch (Exception e1) {}
+		}
+	}
+	
 	/*
 	public int pinPost(int postId, int userId) throws SQLException {
 		String query = "UPDATE post SET pinned = (CASE "

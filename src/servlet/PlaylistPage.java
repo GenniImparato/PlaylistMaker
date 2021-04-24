@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.servlet.RequestDispatcher;
@@ -17,7 +18,9 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import DAO.PlaylistDAO;
+import DAO.SongDAO;
 import bean.Playlist;
+import bean.Song;
 import bean.User;
 
 /**
@@ -65,8 +68,6 @@ public class PlaylistPage extends HttpServlet
 		}
 		else 
 		{
-			PlaylistDAO pDAO = new PlaylistDAO(connection);
-
 			if (session == null || session.getAttribute("currentUser") == null) 
 			{
 				String path = getServletContext().getContextPath() + "/login.html";
@@ -76,9 +77,30 @@ public class PlaylistPage extends HttpServlet
 			
 			int userId = ((User) session.getAttribute("currentUser")).getId();
 			
-			int playlistId = Integer.parseInt(request.getParameter("playlistId"));
+			Integer playlistId = null;
+			Integer index = null;
+			
+			try
+			{
+				playlistId = Integer.parseInt(request.getParameter("playlistId"));
+			}
+			catch(NumberFormatException e)
+			{
+				response.sendError(500, e.getMessage());
+			}
+			
+			try
+			{
+				index = Integer.parseInt(request.getParameter("index"));
+			}
+			catch(NumberFormatException e)
+			{
+				index = 1;
+			}
+			
 			try 
 			{
+				PlaylistDAO pDAO = new PlaylistDAO(connection, false, true);
 				Playlist pl = pDAO.getPlaylistById(playlistId);
 				
 				if(pl.getUserId() != userId)
@@ -87,7 +109,33 @@ public class PlaylistPage extends HttpServlet
 					return;
 				}
 				
+				SongDAO sDAO = new SongDAO(connection, false, true);
+				List<Song> songs = sDAO.getSongsByUser(userId);
+				//check index
+				/*if(index < 1 || index > pl.getSongs().size()/5)
+					index = 1;*/
+				
+				//remove songs already in playlist
+				List<Song> songsFiltered = new ArrayList<Song>();
+				
+				for(int i=0; i<songs.size(); i++)
+				{
+					boolean found = false;
+					for(int j=0; j<pl.getSongs().size() && !found; j++)
+					{
+						if(pl.getSongs().get(j).getId() == songs.get(i).getId())
+							found = true;
+					}
+					
+					if(!found)
+					{
+						songsFiltered.add(songs.get(i));
+					}
+				}
+				
 				session.setAttribute("currentPlaylist", pl);
+				session.setAttribute("currentSongs", songsFiltered);
+				session.setAttribute("currentIndex", index);
 				RequestDispatcher dispatcher = getServletContext().getRequestDispatcher("/WEB-INF/playlist.jsp");
 				dispatcher.forward(request, response);
 			} 

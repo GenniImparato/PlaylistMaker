@@ -2,32 +2,41 @@
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1"
 	pageEncoding="ISO-8859-1"%>
 	
-<p>
-<label for="title"><b>Title:</b> <c:out value="${lastSong.title}"></c:out></label>
-</p>
-  	
-<p>
-<label for="artist"><b>Artist:</b> <c:out value="${lastSong.artist}"></c:out></label>
-</p>
-  	
-<p>
-<label for="album"><b>Album:</b> <c:out value="${lastSong.album}"></c:out></label>
-</p>
-  	
-<p>
-<label for="year"><b>Year:</b> <c:out value="${lastSong.year}"></c:out></label>
-</p>
-  	
-<p>
-<label for="genre"><b>Genre:</b> <c:out value="${lastSong.genre}"></c:out></label>
-</p>
-	
-<p>
-<img width="500" src="data:image/jpeg;base64,${lastSong.image}"/>
-</p>
-	
-<p>
-<audio controls style="width:500px">
-  <source src="data:audio/ogg;base64,${lastSong.audio}">
-</audio>
-</p>
+<table style="width:100%">
+
+	<tr>
+		<td><b>Title:</b></td>
+		<td><c:out value="${lastSong.title}"></c:out></td>
+	</tr>
+	  	
+	<tr>
+		<td><b>Artist:</b></td>
+		<td><c:out value="${lastSong.artist}"></c:out></td>
+	</tr>
+	  	
+	<tr>
+		<td><b>Album:</b></td>
+		<td><c:out value="${lastSong.album}"></c:out></td>
+	</tr>
+	  	
+	<tr>
+		<td><b>Yeear:</b></td>
+		<td><c:out value="${lastSong.year}"></c:out></td>
+	</tr>
+	  	
+	<tr>
+		<td><b>Genre:</b></td>
+		<td><c:out value="${lastSong.genre}"></c:out></td>
+	</tr>
+</table>
+
+<div class="button_div">
+	<img width="500px" src="data:image/jpeg;base64,${lastSong.image}"/>
+</div>
+<div>
+	<audio controls autoplay style="width:500px">
+	  <source src="data:audio/ogg;base64,${lastSong.audio}">
+	</audio>
+</div>
+
+

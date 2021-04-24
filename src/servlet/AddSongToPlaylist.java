@@ -16,12 +16,13 @@ import javax.servlet.http.HttpSession;
 
 import bean.User;
 import DAO.PlaylistDAO;
+import DAO.SongDAO;
 
 /**
  * Servlet implementation class Login
  */
-@WebServlet("/createPlaylist")
-public class CreatePlaylist extends HttpServlet 
+@WebServlet("/addSongToPlaylist")
+public class AddSongToPlaylist extends HttpServlet 
 {
 	private static final long serialVersionUID = 1L;
 	private Connection connection = null;
@@ -56,15 +57,6 @@ public class CreatePlaylist extends HttpServlet
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
 	{
-		// TODO Auto-generated method stub
-		response.getWriter().append("Served at: ").append(request.getContextPath());
-	}
-
-	/**
-	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
-	 */
-	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
-	{
 		HttpSession session = request.getSession(false);
 		if (session == null || session.getAttribute("currentUser") == null) 
 		{
@@ -72,27 +64,58 @@ public class CreatePlaylist extends HttpServlet
 			response.sendRedirect(path);
 		}
 		
-		String name = request.getParameter("name");
+		int playlistId = 1;
+		try
+		{
+			playlistId = Integer.parseInt(request.getParameter("playlistId"));
+		}
+		catch(NumberFormatException e)
+		{
+			response.sendError(505, e.getMessage());
+			return;
+		}
+		
+		int songId = 1;
+		try
+		{
+			songId = Integer.parseInt(request.getParameter("songId"));
+		}
+		catch(NumberFormatException e)
+		{
+			response.sendError(505, e.getMessage());
+			return;
+		}
 
-		if (name == null) 
+		/*if (name == null || playlistId == ) 
 		{
 			response.sendError(505, "Parameters incomplete");
 			return;
-		}
+		}*/
 	    
-		PlaylistDAO pDAO = new PlaylistDAO(connection);
+		
 		int userId = ((User) session.getAttribute("currentUser")).getId();
 		
 		try 
 		{
-			pDAO.createPlaylist(name, userId);
-			response.sendRedirect(getServletContext().getContextPath() + "/HomePage");
+			PlaylistDAO pDAO = new PlaylistDAO(connection);
+			SongDAO	sDAO = new SongDAO(connection);
+			
+			if(sDAO.getSongById(songId).getUserId() != userId	||	pDAO.getPlaylistById(playlistId).getUserId() != userId)
+			{
+				response.sendError(505, "You don't have access to those resources");
+				return;
+			}
+			
+			pDAO.addSongToPlaylist(playlistId, songId);
+			
+			response.sendRedirect(getServletContext().getContextPath() + "/PlaylistPage?playlistId=" + playlistId);
 		} 
 		catch (SQLException e) 
 		{
 			response.sendError(500, "Database access failed");
 		}
 	}
+
 	
 	public void destroy() 
 	{

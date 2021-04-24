@@ -14,16 +14,37 @@ import bean.Song;
 public class SongDAO 
 {
 	private Connection con;
+	boolean ignoreImages;
+	boolean ignoreAudios;
 
 	public SongDAO(Connection connection)
 	{
 		this.con = connection;
+		this.ignoreAudios = false;
+		this.ignoreImages = false;
+	}
+	
+	public SongDAO(Connection connection, boolean ignoreImages, boolean ignoreAudios)
+	{
+		this.con = connection;
+		this.ignoreAudios = ignoreAudios;
+		this.ignoreImages = ignoreImages;
 	}
 
 	public Song getSongById(int songId) throws SQLException
 	{
 		Song s = null;
-		String query = "SELECT * FROM song WHERE id = ?";
+		String query = null;
+		
+		if(!ignoreAudios && !ignoreImages)
+			query = "SELECT * FROM song WHERE id = ?";
+		else if(ignoreAudios  && !ignoreImages)
+			query = "SELECT id, user_id, title, artist, album, year, genre, image FROM song WHERE id = ?";
+		else if(!ignoreAudios  && ignoreImages)
+			query = "SELECT id, user_id, title, artist, album, year, genre, audio FROM song WHERE id = ?";
+		else if(ignoreAudios  && ignoreImages)
+			query = "SELECT id, user_id, title, artist, album, year, genre FROM song WHERE id = ?";
+		
 		ResultSet result = null;
 		PreparedStatement pstatement = null;
 		try 
@@ -41,8 +62,12 @@ public class SongDAO
 				s.setAlbum(result.getString("album"));
 				s.setYear(result.getInt("year"));
 				s.setGenre(result.getString("genre"));	
-				s.setAudio(result.getString("audio"));
-				s.setImage(result.getString("image"));
+				
+				if(!ignoreAudios)
+					s.setAudio(result.getString("audio"));
+				
+				if(!ignoreImages)
+					s.setImage(result.getString("image"));
 			}
 		} 
 		catch (SQLException e) 
@@ -76,7 +101,17 @@ public class SongDAO
 	public List<Song> getSongsByUser(int userId) throws SQLException
 	{
 		List<Song> songs = new ArrayList<Song>();
-		String query = "SELECT * FROM song WHERE user_id = ?";
+		String query = null;
+		
+		if(!ignoreAudios && !ignoreImages)
+			query = "SELECT * FROM song WHERE user_id = ?";
+		else if(ignoreAudios  && !ignoreImages)
+			query = "SELECT id, user_id, title, artist, album, year, genre, image FROM song WHERE user_id = ?";
+		else if(!ignoreAudios  && ignoreImages)
+			query = "SELECT id, user_id, title, artist, album, year, genre, audio FROM song WHERE user_id = ?";
+		else if(ignoreAudios  && ignoreImages)
+			query = "SELECT id, user_id, title, artist, album, year, genre  FROM song WHERE user_id = ?";
+		
 		ResultSet result = null;
 		PreparedStatement pstatement = null;
 		try 
@@ -92,15 +127,14 @@ public class SongDAO
 				s.setArtist(result.getString("artist"));
 				s.setAlbum(result.getString("album"));
 				s.setYear(result.getInt("year"));
-				s.setGenre(result.getString("genre"));	
+				s.setGenre(result.getString("genre"));
+				s.setUserId(result.getInt("user_id"));
 				
-				byte[] byteData = result.getBytes("audio");
-				String encodedData=Base64.getEncoder().encodeToString(byteData);
-				s.setAudio(encodedData);
+				if(!ignoreAudios)
+					s.setAudio(result.getString("audio"));
 				
-				byteData = result.getBytes("image");
-				encodedData=Base64.getEncoder().encodeToString(byteData);
-				s.setImage(encodedData);
+				if(!ignoreImages)
+					s.setImage(result.getString("image"));
 				
 				songs.add(s);
 			}
