@@ -5,6 +5,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 import bean.Playlist;
@@ -46,6 +48,7 @@ public class PlaylistDAO
 				pl.setId(result.getInt("id"));
 				pl.setName(result.getString("name"));
 				pl.setUserId(result.getInt("user_id"));
+				pl.setDate(result.getDate("date"));
 			}
 		} 
 		catch (SQLException e) 
@@ -120,7 +123,7 @@ public class PlaylistDAO
 	public List<Playlist> getPlaylistsByUser(int userId) throws SQLException
 	{
 		List<Playlist> playlists = new ArrayList<Playlist>();
-		String query = "SELECT * FROM playlist WHERE user_id = ?";
+		String query = "SELECT * FROM playlist WHERE user_id = ? ORDER BY date ASC";
 		ResultSet result = null;
 		PreparedStatement pstatement = null;
 		try 
@@ -133,6 +136,7 @@ public class PlaylistDAO
 				Playlist pl = new Playlist();
 				pl.setId(result.getInt("id"));
 				pl.setName(result.getString("name"));
+				pl.setDate(result.getDate("date"));
 				
 				playlists.add(pl);
 			}
@@ -168,13 +172,15 @@ public class PlaylistDAO
 	
 	public void createPlaylist(String name, int userId) throws SQLException 
 	{
-		String query = "INSERT into playlist (name, user_id) VALUES(?, ?)";
+		String query = "INSERT into playlist (name, user_id, date) VALUES(?, ?, ?)";
 		PreparedStatement pstatement = null;	
 		try 
 		{
 			pstatement = con.prepareStatement(query);
 			pstatement.setString(1, name);
 			pstatement.setInt(2, userId);
+			java.sql.Date date = new java.sql.Date(Calendar.getInstance().getTime().getTime());
+			pstatement.setDate(3, date);
 			pstatement.executeUpdate();
 		} 
 		catch (SQLException e) 
@@ -243,48 +249,4 @@ public class PlaylistDAO
 			catch (Exception e1) {}
 		}
 	}
-	
-	/*
-	public int pinPost(int postId, int userId) throws SQLException {
-		String query = "UPDATE post SET pinned = (CASE "
-				+ "WHEN id = ? THEN 1 ELSE 0 END)"
-				+ "WHERE userid = ?";
-		PreparedStatement pstatement = null;
-		int code = 0;		
-		try {
-			pstatement = con.prepareStatement(query);
-			pstatement.setInt(1, postId);
-			pstatement.setInt(2, userId);
-			code = pstatement.executeUpdate();
-		} catch (SQLException e) {
-		    e.printStackTrace();
-			throw new SQLException(e);
-		} finally {
-			try {
-				pstatement.close();
-			} catch (Exception e1) {}
-		}		
-		return code;
-	}
-	
-	public int unpinPost(int postId, int userId) throws SQLException {
-		String query = "UPDATE post SET pinned = 0 WHERE id = ? AND userid = ?";
-		PreparedStatement pstatement = null;
-		int code = 0;		
-		try {
-			pstatement = con.prepareStatement(query);
-			pstatement.setInt(1, postId);
-			pstatement.setInt(2, userId);
-			code = pstatement.executeUpdate();
-		} catch (SQLException e) {
-		    e.printStackTrace();
-			throw new SQLException(e);
-		} finally {
-			try {
-				pstatement.close();
-			} catch (Exception e1) {}
-		}		
-		return code;
-	}
-*/
 }

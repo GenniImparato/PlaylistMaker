@@ -1,5 +1,6 @@
 package bean;
 
+import java.util.Date;
 import java.util.List;
 
 public class Playlist 
@@ -8,6 +9,7 @@ public class Playlist
 	private int			userId;
 	private String 		name;
 	private List<Song>	songs;
+	private Date		date;
 	
 	public int getId() 
 	{
@@ -40,5 +42,13 @@ public class Playlist
 	public void setSongs(List<Song> songs) 
 	{
 		this.songs = songs;
+	}
+	public Date getDate() 
+	{
+		return date;
+	}
+	public void setDate(Date date) 
+	{
+		this.date = date;
 	}
 }

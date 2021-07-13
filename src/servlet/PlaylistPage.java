@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -102,6 +103,8 @@ public class PlaylistPage extends HttpServlet
 			{
 				PlaylistDAO pDAO = new PlaylistDAO(connection, false, true);
 				Playlist pl = pDAO.getPlaylistById(playlistId);
+				SimpleDateFormat frm = new SimpleDateFormat("dd-MM-yyyy");
+				session.setAttribute("currentPlaylistDate", frm.format(pl.getDate()));
 				
 				if(pl.getUserId() != userId)
 				{
@@ -116,7 +119,7 @@ public class PlaylistPage extends HttpServlet
 					index = 1;*/
 				
 				//remove songs already in playlist
-				List<Song> songsFiltered = new ArrayList<Song>();
+				List<Song> songsFiltered = new ArrayList<Song>();session.setAttribute("currentPlaylist", pl);
 				
 				for(int i=0; i<songs.size(); i++)
 				{

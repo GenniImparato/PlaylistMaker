@@ -2,6 +2,7 @@
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1"
 	pageEncoding="ISO-8859-1"%>
 <%@ taglib prefix = "fmt" uri = "http://java.sun.com/jsp/jstl/fmt" %>
+<%@page import="bean.Playlist"%>
 	
 
 <!DOCTYPE html>
@@ -9,7 +10,7 @@
 	<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
 		<link rel="stylesheet" type="text/css" href="/PlaylistMaker/css/style.css">
-		<title>Post Example</title>
+		<title>Playlist Maker</title>
 	</head>
 
 <body>
@@ -19,8 +20,12 @@
 			<a class="button" href="/PlaylistMaker/HomePage"> back to Home Page </a>
 		</div>
 		
-		<h2>Playlist:  
+		<h2>Playlist Name:  
 			<c:out value="${currentPlaylist.name}"></c:out>
+		</h2>
+		
+		<h2>Creation Date:  
+			<c:out value="${currentPlaylistDate}"></c:out>
 		</h2>
 
 		<p></p>
