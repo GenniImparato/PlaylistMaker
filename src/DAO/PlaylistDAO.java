@@ -91,6 +91,7 @@ public class PlaylistDAO
 			}
 			
 			pl.setSongs(songs);
+			
 		} 
 		catch (SQLException e) 
 		{

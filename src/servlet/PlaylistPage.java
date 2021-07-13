@@ -104,7 +104,6 @@ public class PlaylistPage extends HttpServlet
 				PlaylistDAO pDAO = new PlaylistDAO(connection, false, true);
 				Playlist pl = pDAO.getPlaylistById(playlistId);
 				SimpleDateFormat frm = new SimpleDateFormat("dd-MM-yyyy");
-				session.setAttribute("currentPlaylistDate", frm.format(pl.getDate()));
 				
 				if(pl.getUserId() != userId)
 				{
@@ -112,11 +111,15 @@ public class PlaylistPage extends HttpServlet
 					return;
 				}
 				
+				session.setAttribute("currentPlaylistDate", frm.format(pl.getDate()));
+				
+				
+				
 				SongDAO sDAO = new SongDAO(connection, false, true);
 				List<Song> songs = sDAO.getSongsByUser(userId);
 				//check index
-				/*if(index < 1 || index > pl.getSongs().size()/5)
-					index = 1;*/
+				if(index < 1 || index > pl.getSongs().size()/5 + 1)
+					index = 1;
 				
 				//remove songs already in playlist
 				List<Song> songsFiltered = new ArrayList<Song>();session.setAttribute("currentPlaylist", pl);
@@ -135,6 +138,7 @@ public class PlaylistPage extends HttpServlet
 						songsFiltered.add(songs.get(i));
 					}
 				}
+									
 				
 				session.setAttribute("currentPlaylist", pl);
 				session.setAttribute("currentSongs", songsFiltered);
