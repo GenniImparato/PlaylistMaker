@@ -6,6 +6,7 @@
 	let playlistsList;
 	let showPlaylist;
 	let showSongs;
+	let songPlayer;
 	
 	window.addEventListener("load", () => 
 		{
@@ -98,10 +99,15 @@
 	  	});
 	}
 	
-	function ShowPlaylist(listContainer) 
+	function ShowPlaylist(listContainer)  
 	{
 	    this.listContainer = listContainer;
 		this.index = 1;
+		
+		this.reset = function()
+		{
+			this.index = 1;
+		}
 		
 		this.update = function(playlist) 
 		{
@@ -129,6 +135,27 @@
 					button = document.createElement("button");
 					button.setAttribute("class", "button");
 					button.textContent = playlist.songs[i + (this.index-1)*5].title;
+					button.songId = playlist.songs[i + (this.index-1)*5].id;
+					button.addEventListener('click', (e) => 
+					{
+						var url = "getSongData?songId=" + e.currentTarget.songId;
+						makeCall("GET", url, null,
+					      	function(req) 
+							{
+								if (req.readyState == XMLHttpRequest.DONE) 
+								{
+						        	if(req.status == 200) 
+									{
+						              	var song = JSON.parse(req.responseText);
+						              	songPlayer.update(song);
+						          	} 
+									else
+									{
+						            	alert("Error: " + req.responseText);
+						          	}
+								}
+					        });
+					});
 		        	row.appendChild(button);
 	
 					image = document.createElement("img");
@@ -273,6 +300,7 @@
 						              	var playlist = JSON.parse(req.responseText);
 						              	if (playlists.length != 0) 
 										{
+											showPlaylist.reset();
 						              		showPlaylist.update(playlist);
 											showSongs.show();
 										}
@@ -333,43 +361,44 @@
 			row.appendChild(col);
 			elem = document.createElement("b");
 			elem.textContent = "Title";
-			row.appendChild(elem);
+			col.appendChild(elem);
 			
 			col = document.createElement("td");
 			row.appendChild(col);
 			elem = document.createElement("b");
 			elem.textContent = "Artist";
-			row.appendChild(elem);
+			col.appendChild(elem);
 			
 			col = document.createElement("td");
 			row.appendChild(col);
 			elem = document.createElement("b");
 			elem.textContent = "Album";
-			row.appendChild(elem);
+			col.appendChild(elem);
 			
 			col = document.createElement("td");
 			row.appendChild(col);
 			elem = document.createElement("b");
 			elem.textContent = "Year";
-			row.appendChild(elem);
+			col.appendChild(elem);
 			
 			col = document.createElement("td");
 			row.appendChild(col);
 			elem = document.createElement("b");
 			elem.textContent = "Genre";
-			row.appendChild(elem);
+			col.appendChild(elem);
 			
 			col = document.createElement("td");
 			row.appendChild(col);
 			elem = document.createElement("b");
 			elem.textContent = "Image";
-			row.appendChild(elem);
+			col.appendChild(elem);
 			
 			col = document.createElement("td");
 			row.appendChild(col);
 			
 			songs.forEach(function(song) 
 			{
+				//show only songs not already in current playlist
 				if(!showPlaylist.isSongContained(song.id))
 				{
 					row = document.createElement("tr");
@@ -379,31 +408,31 @@
 					row.appendChild(col);
 					elem = document.createElement("p");
 					elem.textContent = song.title;
-					row.appendChild(elem);
+					col.appendChild(elem);
 					
 					col = document.createElement("td");
 					row.appendChild(col);
 					elem = document.createElement("p");
 					elem.textContent = song.artist;
-					row.appendChild(elem);
+					col.appendChild(elem);
 					
 					col = document.createElement("td");
 					row.appendChild(col);
 					elem = document.createElement("p");
 					elem.textContent = song.album;
-					row.appendChild(elem);
+					col.appendChild(elem);
 					
 					col = document.createElement("td");
 					row.appendChild(col);
 					elem = document.createElement("p");
 					elem.textContent = song.year;
-					row.appendChild(elem);
+					col.appendChild(elem);
 					
 					col = document.createElement("td");
 					row.appendChild(col);
 					elem = document.createElement("p");
 					elem.textContent = song.genre;
-					row.appendChild(elem);
+					col.appendChild(elem);
 					
 					col = document.createElement("td");
 					row.appendChild(col);
@@ -412,23 +441,148 @@
 					elem.setAttribute("height", 80);
 					var imageData = "data:image;base64," + song.image;
 					elem.setAttribute("src", imageData);
-					row.appendChild(elem);
+					col.appendChild(elem);
 					
 					col = document.createElement("td");
 					row.appendChild(col);
 					elem = document.createElement("button");
 					elem.setAttribute("class", "button");
 					elem.textContent = "Add to playlist";
+					elem.songId = song.id;
 			        col.appendChild(elem);
 		
 					elem.addEventListener('click', (e) => 
 						{
-							//showPlaylist.update(playlist);
-					  	});
+							var url = "addSongToPlaylist?playlistId=" + showPlaylist.playlist.id + "&songId=" + e.currentTarget.songId;
+							makeCall("GET", url, null,
+					      	function(req) 
+							{
+								if (req.readyState == XMLHttpRequest.DONE) 
+								{
+						        	if(req.status == 200) 
+									{
+						              	var url = "getPlaylistData?playlistId=" + showPlaylist.playlist.id;
+										makeCall("GET", url, null,
+									      	function(req) 
+											{
+												if (req.readyState == XMLHttpRequest.DONE) 
+												{
+										        	if(req.status == 200) 
+													{
+										              	var playlist = JSON.parse(req.responseText);
+										              	showPlaylist.update(playlist);
+														showSongs.show();
+										          	} 
+													else
+													{
+										            	alert("Error: " + req.responseText);
+										          	}
+												}
+					        				});
+						          	} 
+									else
+									{
+						            	alert("Error: " + req.responseText);
+						          	}
+								}
+					        });
+						});
 					
-				}
+					}
 			});
 		}	
+	}
+	
+	function SongPlayer(container)
+	{
+		this.container = container;
+		
+		this.update = function(song)
+		{
+			this.container.innerHTML = ""; // empty the container body
+			this.container.setAttribute("style", "display:block;");
+
+			title = document.createElement("h2");
+			title.textContent = "Song Player";
+			this.container.appendChild(title);
+			
+			table = document.createElement("table");
+			table.setAttribute("style", "width:100%;")
+			this.container.appendChild(table);
+			
+			row = document.createElement("tr");
+			table.appendChild(row);
+			col = document.createElement("td");
+			row.appendChild(col);
+			elem = document.createElement("b");
+			elem.textContent = "Title";
+			col.appendChild(elem);
+			col = document.createElement("td");
+			row.appendChild(col);
+			col.textContent = song.title;
+			
+			row = document.createElement("tr");
+			table.appendChild(row);
+			col = document.createElement("td");
+			row.appendChild(col);
+			elem = document.createElement("b");
+			elem.textContent = "Artist";
+			col.appendChild(elem);
+			col = document.createElement("td");
+			row.appendChild(col);
+			col.textContent = song.artist;
+			
+			row = document.createElement("tr");
+			table.appendChild(row);
+			col = document.createElement("td");
+			row.appendChild(col);
+			elem = document.createElement("b");
+			elem.textContent = "Album";
+			col.appendChild(elem);
+			col = document.createElement("td");
+			row.appendChild(col);
+			col.textContent = song.album;
+			
+			row = document.createElement("tr");
+			table.appendChild(row);
+			col = document.createElement("td");
+			row.appendChild(col);
+			elem = document.createElement("b");
+			elem.textContent = "Year";
+			col.appendChild(elem);
+			col = document.createElement("td");
+			row.appendChild(col);
+			col.textContent = song.year;
+			
+			row = document.createElement("tr");
+			table.appendChild(row);
+			col = document.createElement("td");
+			row.appendChild(col);
+			elem = document.createElement("b");
+			elem.textContent = "Genre";
+			col.appendChild(elem);
+			col = document.createElement("td");
+			row.appendChild(col);
+			col.textContent = song.genre;
+
+			div = document.createElement("div");
+			this.container.appendChild(div);
+			image = document.createElement("img");
+			image.setAttribute("width", 500);
+			image.setAttribute("height", 500);
+			var imageData = "data:image;base64," + song.image;
+			image.setAttribute("src", imageData);
+			div.appendChild(image);
+			
+			div = document.createElement("div");
+			this.container.appendChild(div);
+			sound = document.createElement('audio');
+			sound.width = 500;
+			sound.controls = "controls";
+			sound.autoplay = "autoplay";
+			sound.src = 'data:audio/ogg;base64,' + song.audio;
+			div.appendChild(sound);
+		}
 	}
 	
 	function PageOrchestrator() 
@@ -449,7 +603,9 @@
 			
 			showPlaylist = new ShowPlaylist(document.getElementById("current_playlist_div"));
 			
-			showSongs = new ShowSongs(document.getElementById("add_songs_div"))
+			showSongs = new ShowSongs(document.getElementById("add_songs_div"));
+			
+			songPlayer = new SongPlayer(document.getElementById("song_player_div"))
 			
 	    };
 	

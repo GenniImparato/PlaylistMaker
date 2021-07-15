@@ -8,6 +8,7 @@ import java.sql.SQLException;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.UnavailableException;
+import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -22,6 +23,7 @@ import DAO.SongDAO;
  * Servlet implementation class Login
  */
 @WebServlet("/addSongToPlaylist")
+@MultipartConfig
 public class AddSongToPlaylist extends HttpServlet 
 {
 	private static final long serialVersionUID = 1L;
@@ -71,7 +73,8 @@ public class AddSongToPlaylist extends HttpServlet
 		}
 		catch(NumberFormatException e)
 		{
-			response.sendError(505, e.getMessage());
+			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+			response.getWriter().println("Incorrect or missing param values");
 			return;
 		}
 		
@@ -82,7 +85,8 @@ public class AddSongToPlaylist extends HttpServlet
 		}
 		catch(NumberFormatException e)
 		{
-			response.sendError(505, e.getMessage());
+			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+			response.getWriter().println("Incorrect or missing param values");
 			return;
 		}
 
@@ -102,17 +106,21 @@ public class AddSongToPlaylist extends HttpServlet
 			
 			if(sDAO.getSongById(songId).getUserId() != userId	||	pDAO.getPlaylistById(playlistId).getUserId() != userId)
 			{
-				response.sendError(505, "You don't have access to those resources");
+				response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+				response.getWriter().println("You don't have access to the resource");
 				return;
 			}
 			
 			pDAO.addSongToPlaylist(playlistId, songId);
 			
-			response.sendRedirect(getServletContext().getContextPath() + "/PlaylistPage?playlistId=" + playlistId);
+			response.setStatus(HttpServletResponse.SC_OK);
+			return;
 		} 
 		catch (SQLException e) 
 		{
-			response.sendError(500, "Database access failed");
+			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+			response.getWriter().println("Databse access failed");
+			return;
 		}
 	}
 
