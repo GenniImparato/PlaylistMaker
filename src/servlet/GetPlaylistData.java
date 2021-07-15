@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.servlet.RequestDispatcher;
@@ -16,6 +18,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
 import DAO.PlaylistDAO;
 import DAO.SongDAO;
 import bean.Playlist;
@@ -25,8 +30,8 @@ import bean.User;
 /**
  * Servlet implementation class HomePage
  */
-@WebServlet("/SongPage")
-public class SongPage extends HttpServlet 
+@WebServlet("/getPlaylistData")
+public class GetPlaylistData extends HttpServlet 
 {
 	private static final long serialVersionUID = 1L;
 	private Connection connection = null;
@@ -66,38 +71,48 @@ public class SongPage extends HttpServlet
 			response.sendRedirect(path);
 		}
 		else 
-		{
-			SongDAO sDAO = new SongDAO(connection);
-
-			if (session == null || session.getAttribute("currentUser") == null) 
-			{
-				String path = getServletContext().getContextPath() + "/login.html";
-				response.sendRedirect(path);
-				return;
-			}
-			
+		{		
 			int userId = ((User) session.getAttribute("currentUser")).getId();
 			
-			int songId = Integer.parseInt(request.getParameter("songId"));
-			Song s = null;
+			Integer playlistId = null;
+			
+			try
+			{
+				playlistId = Integer.parseInt(request.getParameter("playlistId"));
+			}
+			catch(NumberFormatException e)
+			{
+				response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+				response.getWriter().println("Invalid Playlist");
+			}
 			
 			try 
 			{
-				s = sDAO.getSongById(songId);
+				PlaylistDAO pDAO = new PlaylistDAO(connection, false, true);
+				Playlist pl = pDAO.getPlaylistById(playlistId);
+				SimpleDateFormat frm = new SimpleDateFormat("dd-MM-yyyy");
+				
+				if(pl.getUserId() != userId)
+				{
+					response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+					response.getWriter().println("Not allowed to see this playlist");
+					return;
+				}
+				
+				
+				Gson gson = new GsonBuilder().create();
+				String json = gson.toJson(pl);
+				
+				response.setStatus(HttpServletResponse.SC_OK);
+				response.setContentType("application/json");
+				response.setCharacterEncoding("UTF-8");
+				response.getWriter().write(json);
 			} 
 			catch (SQLException e) 
 			{
-				response.sendError(500, "Database access failed");
-			}
-			
-			if(s.getUserId() != userId)
-			{
-				response.sendError(500, "Not authorized to see this song!");
-				return;
-			}
-				
-			session.setAttribute("lastSong", s);
-			response.sendRedirect(request.getContextPath() + "/song.jsp");			
+				response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+				response.getWriter().println("Database access failed");
+			}		
 		}
 	}
 

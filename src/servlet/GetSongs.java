@@ -4,8 +4,6 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.servlet.RequestDispatcher;
@@ -18,6 +16,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
 import DAO.PlaylistDAO;
 import DAO.SongDAO;
 import bean.Playlist;
@@ -27,8 +28,8 @@ import bean.User;
 /**
  * Servlet implementation class HomePage
  */
-@WebServlet("/PlaylistPage")
-public class PlaylistPage extends HttpServlet 
+@WebServlet("/getSongs")
+public class GetSongs extends HttpServlet 
 {
 	private static final long serialVersionUID = 1L;
 	private Connection connection = null;
@@ -69,90 +70,27 @@ public class PlaylistPage extends HttpServlet
 		}
 		else 
 		{
-			if (session == null || session.getAttribute("currentUser") == null) 
-			{
-				String path = getServletContext().getContextPath() + "/login.html";
-				response.sendRedirect(path);
-				return;
-			}
-			
 			int userId = ((User) session.getAttribute("currentUser")).getId();
-			
-			Integer playlistId = null;
-			Integer index = null;
-			
-			try
-			{
-				playlistId = Integer.parseInt(request.getParameter("playlistId"));
-			}
-			catch(NumberFormatException e)
-			{
-				response.sendError(500, e.getMessage());
-			}
-			
-			try
-			{
-				index = Integer.parseInt(request.getParameter("index"));
-			}
-			catch(NumberFormatException e)
-			{
-				index = 1;
-			}
-			
 			try 
 			{
-				PlaylistDAO pDAO = new PlaylistDAO(connection, false, true);
-				Playlist pl = pDAO.getPlaylistById(playlistId);
-				SimpleDateFormat frm = new SimpleDateFormat("dd-MM-yyyy");
-				
-				if(pl.getUserId() != userId)
-				{
-					response.sendError(500, "Not authorized to see this playlist!");
-					return;
-				}
-				
-				session.setAttribute("currentPlaylistDate", frm.format(pl.getDate()));
-				
-				
-				
 				SongDAO sDAO = new SongDAO(connection, false, true);
 				List<Song> songs = sDAO.getSongsByUser(userId);
-				//check index
-				if(index < 1 || index > pl.getSongs().size()/5 + 1)
-					index = 1;
+
+				Gson gson = new GsonBuilder().create();
+				String json = gson.toJson(songs);
 				
-				//remove songs already in playlist
-				List<Song> songsFiltered = new ArrayList<Song>();session.setAttribute("currentPlaylist", pl);
-				
-				for(int i=0; i<songs.size(); i++)
-				{
-					boolean found = false;
-					for(int j=0; j<pl.getSongs().size() && !found; j++)
-					{
-						if(pl.getSongs().get(j).getId() == songs.get(i).getId())
-							found = true;
-					}
-					
-					if(!found)
-					{
-						songsFiltered.add(songs.get(i));
-					}
-				}
-									
-				
-				session.setAttribute("currentPlaylist", pl);
-				session.setAttribute("currentSongs", songsFiltered);
-				session.setAttribute("currentIndex", index);
-				RequestDispatcher dispatcher = getServletContext().getRequestDispatcher("/WEB-INF/playlist.jsp");
-				dispatcher.forward(request, response);
+				response.setStatus(HttpServletResponse.SC_OK);
+				response.setContentType("application/json");
+				response.setCharacterEncoding("UTF-8");
+				response.getWriter().write(json);
 			} 
 			catch (SQLException e) 
 			{
-				response.sendError(500, "Database access failed");
+				response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+				response.getWriter().println("Database access failed");
 			}		
 		}
 	}
-
 
 	public void destroy() {
 		try {

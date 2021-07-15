@@ -72,7 +72,8 @@ public class UploadSong extends HttpServlet
 		s.setTitle(request.getParameter("title"));
 		if(s.getTitle() == null)
 		{
-			redirectToErrorPage(request, response, "Invalid title");
+			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+			response.getWriter().println("Title can't be null");
 			return;
 		}
 		
@@ -100,7 +101,8 @@ public class UploadSong extends HttpServlet
 			}
 			catch(NumberFormatException e)
 			{
-				redirectToErrorPage(request, response, "Invalid year:\r\n" + e.getMessage());
+				response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+				response.getWriter().println("Invalid year");
 				return;
 			}
 		}
@@ -125,7 +127,8 @@ public class UploadSong extends HttpServlet
 		
 		if(fileStream.available()==0 || !mimeType.startsWith("audio/"))
 		{
-			redirectToErrorPage(request, response, "Invalid audio file");
+			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+			response.getWriter().println("Invalid audio file");
 			return;
 		}
 		
@@ -145,7 +148,8 @@ public class UploadSong extends HttpServlet
 		}
 		else if(!mimeType.startsWith("image/"))
 		{
-			redirectToErrorPage(request, response, "Invalid image file");
+			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+			response.getWriter().println("Invalid image file");
 			return;
 		}
 		
@@ -162,15 +166,10 @@ public class UploadSong extends HttpServlet
 		} 
 		catch (SQLException e) 
 		{
-			redirectToErrorPage(request, response, "Error accessing database:" + e.getMessage());
+			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+			response.getWriter().println("Can't access database");
 			return;
 		}
-	}
-	
-	public void redirectToErrorPage(HttpServletRequest request, HttpServletResponse response, String message) throws ServletException, IOException
-	{
-		request.getSession().setAttribute("lastMessage", message);
-		response.sendRedirect(getServletContext().getContextPath() + "/upload_fail.jsp");
 	}
 	
 	public void destroy() 

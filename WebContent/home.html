@@ -1,23 +1,19 @@
-<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
-<%@ page language="java" contentType="text/html; charset=ISO-8859-1"
-	pageEncoding="ISO-8859-1"%>
-<%@ taglib prefix = "fmt" uri = "http://java.sun.com/jsp/jstl/fmt" %>
-	
-
 <!DOCTYPE html>
 <html>
 	<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
 		<link rel="stylesheet" type="text/css" href="/PlaylistMaker/css/style.css">
 		<title>Home Page</title>
+		<script src="makeCall.js" charset="utf-8" defer></script>
+		<script src="main.js" charset="utf-8" defer></script>
 	</head>
 
 <body>
 	<div class="main_div">
 		<h1 class="title">Playlist Maker</h1>
 		<h2>Welcome 
-			<span style='color:orange'>
-				<c:out value="${currentUser.username}"></c:out>
+			<span style='color:orange' id="id_username">
+				current user
 			</span>
 			, this is your home page!
 		</h2>
@@ -30,32 +26,24 @@
 		
 		<div class="list_div">
 			<h2>Your playlists:</h2>
-			
-			<c:choose>
-				<c:when test="${playlists.size()>0}">
-				<div>
-					<c:forEach var="pl" items="${playlists}">
-						<a class="button" href="/PlaylistMaker/PlaylistPage?playlistId=<c:out value="${pl.id}"/>">
-							<c:out value="${pl.name}"/>
-						</a>
-					</c:forEach>
-				</div>
-				</c:when>
-				<c:otherwise>
-					<p>No playlists.</p>
-				</c:otherwise>
-			</c:choose>
+			<div id="playlists_container"></div>
+		</div>
+		
+		<div class="list_div" id="current_playlist_div"  style="display:none;">
+		</div>
+		
+		<div class="list_div" id="add_songs_div"  style="display:none;">
 		</div>
 		
 		<div class="list_div">
 			<h2>Create new playlist:</h2>
 			
-			<form method="post" action="/PlaylistMaker/createPlaylist">
+			<form>
 				<label for="name"><b>Name*: </b></label>
 		    	<input type="text" placeholder="Enter Playlist name" name="name" required/>
 		    	
 		    	<div class="button_div">
-		    		<input class="button" type="submit" value="Create Playlist">
+		    		<input class="button" value="Create Playlist" id="create_playlist_button">
 		    	</div>
 			</form>
 		</div>
@@ -63,7 +51,7 @@
 		<div class="list_div">
 			<h2>Upload a song:</h2>
 			
-			<form method="post" action="/PlaylistMaker/uploadSong" enctype="multipart/form-data">
+			<form>
 				<p>
 				<label for="title"><b>Title*: </b></label>
 			    <input type="text" placeholder="Enter Title" name="title" required/>
@@ -86,7 +74,28 @@
 		    	
 		    	<p>
 				<label for="genre"><b>Genre: </b></label>
-			    <select  id="genre" name="genre">	    
+			    <select  id="genre" name="genre">	 
+			    	<option>Country</option>
+					<option>Hip-hop</option>
+					<option>Indie rock</option>
+					<option>Jazz</option>
+					<option>K-pop</option>
+					<option>Metal</option>
+					<option>Pop</option>
+					<option>Rap</option>
+					<option>Rhythm & blues (R&B)</option>
+					<option>Rock</option>
+					<option>Alternative Rock</option>
+					<option>House</option>
+					<option>Dubstep</option>
+					<option>Classical</option>
+					<option>Techno</option>
+					<option>Latin </option>
+					<option>Classical</option>
+					<option>Funk</option>
+					<option>Soul</option>
+					<option>EDM</option>
+					<option>Electro</option>	   
 				</select>
 		    	</p>
 		    	
@@ -97,14 +106,14 @@
 				</label>
 		    	</p>
 
-<p>
+				<p>
 				<label class="custom-file-upload"><b>Image File:</b>
 					<input type="file" name ="image" accept="image/*">
 				</label>
 		    	</p>
 
 		    	<div class="button_div">
-		    		<input class="button" type="submit" value="Upload Song">
+		    		<input class="button" value="Upload Song" id="upload_song_button">
 		    	</div>
 			</form>
 		</div>

@@ -8,11 +8,14 @@ import java.sql.SQLException;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.UnavailableException;
+import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+
+import org.apache.commons.lang.StringEscapeUtils;
 
 import bean.User;
 import DAO.PlaylistDAO;
@@ -21,6 +24,7 @@ import DAO.PlaylistDAO;
  * Servlet implementation class Login
  */
 @WebServlet("/createPlaylist")
+@MultipartConfig
 public class CreatePlaylist extends HttpServlet 
 {
 	private static final long serialVersionUID = 1L;
@@ -72,11 +76,12 @@ public class CreatePlaylist extends HttpServlet
 			response.sendRedirect(path);
 		}
 		
-		String name = request.getParameter("name");
+		String name = StringEscapeUtils.escapeJava(request.getParameter("name"));
 
 		if (name == null) 
 		{
-			response.sendError(505, "Parameters incomplete");
+			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+			response.getWriter().println("Incorrect or missing param values");
 			return;
 		}
 	    
@@ -86,11 +91,15 @@ public class CreatePlaylist extends HttpServlet
 		try 
 		{
 			pDAO.createPlaylist(name, userId);
-			response.sendRedirect(getServletContext().getContextPath() + "/HomePage");
+			response.setStatus(HttpServletResponse.SC_OK);
+			response.setContentType("application/json");
+			response.setCharacterEncoding("UTF-8");
+			response.getWriter().print(name);
 		} 
 		catch (SQLException e) 
 		{
-			response.sendError(500, "Database access failed");
+			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+			response.getWriter().println("Database access failed");
 		}
 	}
 	

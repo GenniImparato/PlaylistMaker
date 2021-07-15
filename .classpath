@@ -13,5 +13,7 @@
 	</classpathentry>
 	<classpathentry kind="con" path="org.eclipse.jst.j2ee.internal.web.container"/>
 	<classpathentry kind="con" path="org.eclipse.jst.j2ee.internal.module.container"/>
+	<classpathentry kind="lib" path="D:/Users/Genni/eclipse-workspace/TIW-MissionExpensesManagement/WebContent/WEB-INF/lib/apache-commons-lang.jar"/>
+	<classpathentry kind="lib" path="D:/Users/Genni/eclipse-workspace/TIW-MissionExpensesManagementCSnew/WebContent/WEB-INF/lib/gson-2.8.6.jar"/>
 	<classpathentry kind="output" path="build/classes"/>
 </classpath>

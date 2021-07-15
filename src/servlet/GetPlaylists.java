@@ -16,6 +16,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
 import DAO.PlaylistDAO;
 import bean.Playlist;
 import bean.User;
@@ -23,8 +26,8 @@ import bean.User;
 /**
  * Servlet implementation class HomePage
  */
-@WebServlet("/HomePage")
-public class HomePage extends HttpServlet 
+@WebServlet("/getPlaylists")
+public class GetPlaylists extends HttpServlet 
 {
 	private static final long serialVersionUID = 1L;
 	private Connection connection = null;
@@ -71,13 +74,19 @@ public class HomePage extends HttpServlet
 			try 
 			{
 				playlists = pDAO.getPlaylistsByUser(userId);
-				session.setAttribute("playlists", playlists);
-				RequestDispatcher dispatcher = getServletContext().getRequestDispatcher("/WEB-INF/home.jsp");
-				dispatcher.forward(request, response);
+
+				Gson gson = new GsonBuilder().create();
+				String json = gson.toJson(playlists);
+				
+				response.setStatus(HttpServletResponse.SC_OK);
+				response.setContentType("application/json");
+				response.setCharacterEncoding("UTF-8");
+				response.getWriter().write(json);
 			} 
 			catch (SQLException e) 
 			{
-				response.sendError(500, "Database access failed");
+				response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+				response.getWriter().println("Database access failed");
 			}		
 		}
 	}

@@ -5,6 +5,8 @@
 	<meta charset="ISO-8859-1">
 	<title>Login</title>
 	<link rel="stylesheet" type="text/css" href="/PlaylistMaker/css/style.css">
+	<script src="makeCall.js" charset="utf-8" defer></script>
+	<script src="login.js" charset="utf-8" defer></script>
 </head>
 
 <body>
@@ -16,15 +18,15 @@
 		<h1>Log in</h1>
 		<p>Please insert username and password!</p>
 		
-		<form method="post" action="/PlaylistMaker/login">
+		<form action="#">
 			<label for="username"><b>Username</b></label>
 	    	<input type="text" placeholder="Enter Username" name="username" required/>
 	    	<p></p>
 	    	<label for="password"><b>Password</b></label>
 	    	<input type="password" placeholder="Enter Password" name="password" required/>
-	    	<p></p>
+	    	<p id="error_message"></p>
 	    	<div class="button_div">
-	    		<button class="button" type="submit">Login</button>
+	    		<input class="button" type="button" id="login_button" value="login">
 	    	</div>
 		</form>
 	</div>
