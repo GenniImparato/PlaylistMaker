@@ -7,6 +7,7 @@
 	let showPlaylist;
 	let showSongs;
 	let songPlayer;
+	let sortPlaylist;
 	
 	window.addEventListener("load", () => 
 		{
@@ -103,6 +104,7 @@
 	{
 	    this.listContainer = listContainer;
 		this.index = 1;
+		var self = this;
 		
 		this.reset = function()
 		{
@@ -119,6 +121,16 @@
 			title = document.createElement("h2");
 			title.textContent = "Current Playlist: " + playlist.name;
 			this.listContainer.appendChild(title);
+			
+			button = document.createElement("button");
+			button.setAttribute("class", "button");
+			button.textContent = "Sort songs";
+			button.playlistId = playlist.id;
+			button.addEventListener('click', (e) => 
+			{
+				sortPlaylist.update(self.playlist);
+			});
+			this.listContainer.appendChild(button);
 			
 			table = document.createElement("table");
 			this.listContainer.appendChild(table);
@@ -324,7 +336,8 @@
 		
 		this.show = function()
 		{
-			makeCall("GET", "getSongs", null,
+			var url = "getSongs?playlistId=" + showPlaylist.playlist.id;
+			makeCall("GET", url, null,
 		      	function(req) 
 				{
 					if (req.readyState == XMLHttpRequest.DONE) 
@@ -496,6 +509,7 @@
 	function SongPlayer(container)
 	{
 		this.container = container;
+		var self = this;
 		
 		this.update = function(song)
 		{
@@ -505,6 +519,16 @@
 			title = document.createElement("h2");
 			title.textContent = "Song Player";
 			this.container.appendChild(title);
+			
+			button = document.createElement("button");
+			button.setAttribute("class", "button");
+			button.textContent = "Close";
+			button.addEventListener('click', (e) => 
+			{
+				self.container.setAttribute("style", "display:none;");
+				this.sound.pause();
+			});
+			this.container.appendChild(button);
 			
 			table = document.createElement("table");
 			table.setAttribute("style", "width:100%;")
@@ -576,13 +600,141 @@
 			
 			div = document.createElement("div");
 			this.container.appendChild(div);
-			sound = document.createElement('audio');
-			sound.width = 500;
-			sound.controls = "controls";
-			sound.autoplay = "autoplay";
-			sound.src = 'data:audio/ogg;base64,' + song.audio;
-			div.appendChild(sound);
+			this.sound = document.createElement('audio');
+			this.sound.width = 500;
+			this.sound.controls = "controls";
+			this.sound.autoplay = "autoplay";
+			this.sound.src = 'data:audio/ogg;base64,' + song.audio;
+			div.appendChild(this.sound);
 		}
+	}
+	
+	function SortPlaylist(container)
+	{
+		this.container = container;
+		var self = this;
+		
+		this.update = function(playlist)
+		{
+			this.container.innerHTML = ""; // empty the container body
+			this.container.setAttribute("style", "display:block;");
+
+			title = document.createElement("h2");
+			title.textContent = "Sort Playlist";
+			this.container.appendChild(title);
+			
+			div = document.createElement("div");
+			div.setAttribute("class", "button_div");
+			this.container.appendChild(div);
+			
+			button = document.createElement("button");
+			button.setAttribute("class", "button");
+			button.textContent = "Close";
+			button.addEventListener('click', (e) => 
+			{
+				self.container.setAttribute("style", "display:none;");
+			});
+			div.appendChild(button);
+			
+			button = document.createElement("button");
+			button.setAttribute("class", "button");
+			button.textContent = "Save Sorting";
+			button.addEventListener('click', (e) => 
+			{
+				var table = document.getElementById("sort_songs_table"); 
+			    var rowsArray = Array.from(table.querySelectorAll('tr'));
+
+				for(var i=0; i<rowsArray.length; i++)
+				{
+					var url = "setSongSort?playlistId=" + showPlaylist.playlist.id 
+										+ "&songId=" + rowsArray[i].songId
+										+ "&sort=" + i;
+							makeCall("GET", url, null,
+					      	function(req) 
+							{
+								if (req.readyState == XMLHttpRequest.DONE) 
+								{
+						        	if(req.status == 200) 
+									{
+										var url = "getPlaylistData?playlistId=" + showPlaylist.playlist.id;
+										makeCall("GET", url, null,
+									      	function(req) 
+											{
+												if (req.readyState == XMLHttpRequest.DONE) 
+												{
+										        	if(req.status == 200) 
+													{
+										              	var playlist = JSON.parse(req.responseText);
+														showPlaylist.reset();
+										              	showPlaylist.update(playlist);
+										          	} 
+													else
+													{
+										            	alert("Error: " + req.responseText);
+										          	}
+												}
+									        });
+						          	} 
+									else
+									{
+						            	alert("Error: " + req.responseText);
+						          	}
+								}
+					        });
+				}
+				
+				self.container.setAttribute("style", "display:none;");
+			});
+			div.appendChild(button);
+			
+			table = document.createElement("table");
+			table.setAttribute("id", "sort_songs_table");
+			this.container.appendChild(table);
+			
+			playlist.songs.forEach(function(song) 
+			{
+				row = document.createElement("tr");
+				row.setAttribute("class", "draggable");
+				row.draggable = true;
+				row.songId = song.id;
+				row.addEventListener('dragstart', (e) => 
+				{
+					self.startElement = e.target.closest("tr");
+				});
+				row.addEventListener('dragover', (e) => 
+				{
+					e.preventDefault(); 
+				});
+				row.addEventListener('drop', (e) => 
+				{
+					var dest = e.target.closest("tr");
+
+			        var table = dest.closest('table'); 
+			        var rowsArray = Array.from(table.querySelectorAll('tr'));
+			        var indexDest = rowsArray.indexOf(dest);
+			
+			        if (rowsArray.indexOf(self.startElement) < indexDest)
+			            self.startElement.parentElement.insertBefore(self.startElement, rowsArray[indexDest + 1]);
+			        else
+			            self.startElement.parentElement.insertBefore(self.startElement, rowsArray[indexDest]);
+				});
+				table.appendChild(row);
+				
+				col = document.createElement("td");
+				col.textContent = song.title;
+				row.appendChild(col);
+				
+				col = document.createElement("td");
+				row.appendChild(col);
+				image = document.createElement("img");
+				image.setAttribute("width", 30);
+				image.setAttribute("height", 30);
+				var imageData = "data:image;base64," + song.image;
+				image.setAttribute("src", imageData);
+				col.appendChild(image);
+			});
+		}
+		
 	}
 	
 	function PageOrchestrator() 
@@ -605,7 +757,9 @@
 			
 			showSongs = new ShowSongs(document.getElementById("add_songs_div"));
 			
-			songPlayer = new SongPlayer(document.getElementById("song_player_div"))
+			songPlayer = new SongPlayer(document.getElementById("song_player_div"));
+			
+			sortPlaylist = new SortPlaylist(document.getElementById("sort_playlist_div"))
 			
 	    };
 	

@@ -98,19 +98,39 @@ public class SongDAO
 		return s;
 	}
 	
-	public List<Song> getSongsByUser(int userId) throws SQLException
+	public List<Song> getSongsByUser(int userId, Integer playlistId) throws SQLException
 	{
 		List<Song> songs = new ArrayList<Song>();
 		String query = null;
 		
 		if(!ignoreAudios && !ignoreImages)
-			query = "SELECT * FROM song WHERE user_id = ?";
+		{
+			if(playlistId == null)
+				query = "SELECT * FROM song WHERE user_id = ?";
+			else
+				query = "SELECT * FROM song JOIN song_in_playlist on song.id=song_in_playlist.song_id WHERE user_id = ?";
+		}
 		else if(ignoreAudios  && !ignoreImages)
-			query = "SELECT id, user_id, title, artist, album, year, genre, image FROM song WHERE user_id = ?";
+		{
+			if(playlistId == null)
+				query = "SELECT id, user_id, title, artist, album, year, genre, image FROM song WHERE user_id = ?";
+			else
+				query = "SELECT id, user_id, title, artist, album, year, genre, image, sort FROM song JOIN song_in_playlist on song.id=song_in_playlist.song_id  WHERE user_id = ?";
+		}
 		else if(!ignoreAudios  && ignoreImages)
-			query = "SELECT id, user_id, title, artist, album, year, genre, audio FROM song WHERE user_id = ?";
+		{
+			if(playlistId == null)
+				query = "SELECT id, user_id, title, artist, album, year, genre, audio FROM song WHERE user_id = ?";
+			else
+				query = "SELECT id, user_id, title, artist, album, year, genre, audio, sort FROM song JOIN song_in_playlist on song.id=song_in_playlist.song_id WHERE user_id = ?";
+		}
 		else if(ignoreAudios  && ignoreImages)
-			query = "SELECT id, user_id, title, artist, album, year, genre  FROM song WHERE user_id = ?";
+		{
+			if(playlistId == null)
+				query = "SELECT id, user_id, title, artist, album, year, genre  FROM song WHERE user_id = ?";
+			else
+				query = "SELECT id, user_id, title, artist, album, year, genre, sort  FROM song JOIN song_in_playlist on song.id=song_in_playlist.song_id WHERE user_id = ?";
+		}
 		
 		ResultSet result = null;
 		PreparedStatement pstatement = null;
@@ -135,6 +155,9 @@ public class SongDAO
 				
 				if(!ignoreImages)
 					s.setImage(result.getString("image"));
+				
+				if(playlistId != null)
+					s.setSort(result.getInt("sort"));
 				
 				songs.add(s);
 			}

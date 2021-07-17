@@ -76,7 +76,51 @@ public class PlaylistDAO
 			}
 		}
 		
-		query = "SELECT song_id FROM song_in_playlist WHERE playlist_id = ? order by (SELECT year from song where id = song_id) DESC";
+		query = "SELECT sort FROM song_in_playlist WHERE playlist_id = ?";
+		
+		boolean sorted = false;
+		
+		try 
+		{
+			pstatement = con.prepareStatement(query);
+			pstatement.setInt(1, playlistId);
+			result = pstatement.executeQuery();
+			while(result.next()) 
+			{
+				if(result.getInt("sort") != -1)
+					sorted = true;
+			}			
+		} 
+		catch (SQLException e) 
+		{
+		    e.printStackTrace();
+			throw new SQLException(e);
+		} 
+		finally 
+		{
+			try 
+			{
+				result.close();
+			} 
+			catch (Exception e1) 
+			{
+				throw new SQLException(e1);
+			}
+			try 
+			{
+				pstatement.close();
+			} 
+			catch (Exception e2) 
+			{
+				throw new SQLException(e2);
+			}
+		}
+		
+		if(sorted)
+			query = "SELECT song_id FROM song_in_playlist WHERE playlist_id = ? order by sort ASC ";
+		else
+			query = "SELECT song_id FROM song_in_playlist WHERE playlist_id = ? order by (SELECT year from song where id = song_id) DESC ";
+		
 		List<Song> songs = new ArrayList<Song>();
 		
 		try 
@@ -234,6 +278,33 @@ public class PlaylistDAO
 			pstatement = con.prepareStatement(query);
 			pstatement.setInt(1, playlistId);
 			pstatement.setInt(2, songId);
+			pstatement.executeUpdate();
+		} 
+		catch (SQLException e) 
+		{
+		    e.printStackTrace();
+			throw new SQLException(e);
+		} 
+		finally 
+		{
+			try 
+			{
+				pstatement.close();
+			} 
+			catch (Exception e1) {}
+		}
+	}
+	
+	public void sortSong(int songId, int playlistId, int sort) throws SQLException
+	{
+		String query = "UPDATE song_in_playlist SET sort = ? WHERE playlist_id = ? and song_id = ?";
+		PreparedStatement pstatement = null;	
+		try 
+		{
+			pstatement = con.prepareStatement(query);
+			pstatement.setInt(1, sort);
+			pstatement.setInt(2, playlistId);
+			pstatement.setInt(3, songId);
 			pstatement.executeUpdate();
 		} 
 		catch (SQLException e) 

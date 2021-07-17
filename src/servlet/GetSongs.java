@@ -71,10 +71,22 @@ public class GetSongs extends HttpServlet
 		else 
 		{
 			int userId = ((User) session.getAttribute("currentUser")).getId();
+			
+			Integer playlistId = null;
+			
+			try
+			{
+				playlistId = Integer.parseInt(request.getParameter("playlistId"));
+			}
+			catch(NumberFormatException e)
+			{
+				playlistId = null;
+			}
 			try 
 			{
 				SongDAO sDAO = new SongDAO(connection, false, true);
-				List<Song> songs = sDAO.getSongsByUser(userId);
+				
+				List<Song> songs = sDAO.getSongsByUser(userId, playlistId);
 
 				Gson gson = new GsonBuilder().create();
 				String json = gson.toJson(songs);

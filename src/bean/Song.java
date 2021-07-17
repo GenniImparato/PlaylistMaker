@@ -11,6 +11,7 @@ public class Song
 	private int 	year;
 	private String	audio;
 	private String  image;
+	private int		sort;
 	
 	public int getId() 
 	{
@@ -99,5 +100,15 @@ public class Song
 	public void setUserId(int userid) 
 	{
 		this.userid = userid;
+	}
+
+	public int getSort() 
+	{
+		return sort;
+	}
+
+	public void setSort(int sort) 
+	{
+		this.sort = sort;
 	}
 }
