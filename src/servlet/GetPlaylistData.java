@@ -4,11 +4,7 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.List;
 
-import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.UnavailableException;
@@ -22,9 +18,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 import DAO.PlaylistDAO;
-import DAO.SongDAO;
 import bean.Playlist;
-import bean.Song;
 import bean.User;
 
 /**
@@ -90,7 +84,6 @@ public class GetPlaylistData extends HttpServlet
 			{
 				PlaylistDAO pDAO = new PlaylistDAO(connection, false, true);
 				Playlist pl = pDAO.getPlaylistById(playlistId);
-				SimpleDateFormat frm = new SimpleDateFormat("dd-MM-yyyy");
 				
 				if(pl.getUserId() != userId)
 				{

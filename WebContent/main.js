@@ -19,7 +19,6 @@
 			else 
 			{
 			  	pageOrchestrator.start();
-			  	pageOrchestrator.refresh();
 	    	} 
 	  	}, false);
 
@@ -28,7 +27,7 @@
 	function UsernameText(username, messagecontainer) 
 	{
 	    this.username = username;
-	    this.show = function() 
+	    this.update = function() 
 		{
 	    	messagecontainer.textContent = this.username;
 	    }
@@ -173,7 +172,10 @@
 					image = document.createElement("img");
 					image.setAttribute("width", 200);
 					image.setAttribute("height", 200);
-					var imageData = "data:image;base64," + playlist.songs[i + (this.index-1)*5].image;
+					if(playlist.songs[i + (this.index-1)*5].image != null)
+					{imageData = "data:image;base64," + playlist.songs[i + (this.index-1)*5].image;}
+					else
+					{imageData = "missing_song.png";}
 					image.setAttribute("src", imageData);
 					button.appendChild(image);
 				}
@@ -336,7 +338,7 @@
 		
 		this.show = function()
 		{
-			var url = "getSongs?playlistId=" + showPlaylist.playlist.id;
+			var url = "getSongs";
 			makeCall("GET", url, null,
 		      	function(req) 
 				{
@@ -438,7 +440,11 @@
 					col = document.createElement("td");
 					row.appendChild(col);
 					elem = document.createElement("p");
-					elem.textContent = song.year;
+					if(song.year != 0)
+					{elem.textContent = song.year;}
+					else
+					{elem.textContent = "Uknown Year";}
+					
 					col.appendChild(elem);
 					
 					col = document.createElement("td");
@@ -452,7 +458,12 @@
 					elem = document.createElement("img");
 					elem.setAttribute("width", 80);
 					elem.setAttribute("height", 80);
-					var imageData = "data:image;base64," + song.image;
+					var imageData;
+					if(song.image != null)
+					{imageData = "data:image;base64," + song.image;}
+					else
+					{imageData = "missing_song.png";}
+					
 					elem.setAttribute("src", imageData);
 					col.appendChild(elem);
 					
@@ -576,7 +587,10 @@
 			col.appendChild(elem);
 			col = document.createElement("td");
 			row.appendChild(col);
-			col.textContent = song.year;
+			if(song.year != 0)
+			{col.textContent = song.year;}
+			else
+			{col.textContent = "Uknown Year";}
 			
 			row = document.createElement("tr");
 			table.appendChild(row);
@@ -594,7 +608,11 @@
 			image = document.createElement("img");
 			image.setAttribute("width", 500);
 			image.setAttribute("height", 500);
-			var imageData = "data:image;base64," + song.image;
+			var imageData;
+			if(song.image != null)
+			{imageData = "data:image;base64," + song.image;}
+			else
+			{imageData = "missing_song.png";}
 			image.setAttribute("src", imageData);
 			div.appendChild(image);
 			
@@ -643,6 +661,7 @@
 			{
 				var table = document.getElementById("sort_songs_table"); 
 			    var rowsArray = Array.from(table.querySelectorAll('tr'));
+				self.songsCount = rowsArray.length;
 
 				for(var i=0; i<rowsArray.length; i++)
 				{
@@ -653,27 +672,33 @@
 					      	function(req) 
 							{
 								if (req.readyState == XMLHttpRequest.DONE) 
-								{
+								{ 
 						        	if(req.status == 200) 
 									{
-										var url = "getPlaylistData?playlistId=" + showPlaylist.playlist.id;
-										makeCall("GET", url, null,
-									      	function(req) 
-											{
-												if (req.readyState == XMLHttpRequest.DONE) 
+										self.songsCount-=1;
+										
+										//call only when all received
+										if(self.songsCount==0)
+										{
+											var url = "getPlaylistData?playlistId=" + showPlaylist.playlist.id;
+											makeCall("GET", url, null,
+										      	function(req) 
 												{
-										        	if(req.status == 200) 
+													if (req.readyState == XMLHttpRequest.DONE) 
 													{
-										              	var playlist = JSON.parse(req.responseText);
-														showPlaylist.reset();
-										              	showPlaylist.update(playlist);
-										          	} 
-													else
-													{
-										            	alert("Error: " + req.responseText);
-										          	}
-												}
-									        });
+											        	if(req.status == 200) 
+														{
+											              	var playlist = JSON.parse(req.responseText);
+															showPlaylist.reset();
+											              	showPlaylist.update(playlist);
+											          	} 
+														else
+														{
+											            	alert("Error: " + req.responseText);
+											          	}
+													}
+										        });
+										}
 						          	} 
 									else
 									{
@@ -744,7 +769,7 @@
 		{
 			//show username
 			userText = new UsernameText(sessionStorage.getItem('currentUsername'), document.getElementById("id_username"));
-	      	userText.show();
+	      	userText.update();
 
 			createPlaylist = new CreatePlaylist(document.getElementById("create_playlist_button"));
 			
@@ -761,10 +786,6 @@
 			
 			sortPlaylist = new SortPlaylist(document.getElementById("sort_playlist_div"))
 			
-	    };
-	
-	    this.refresh = function() 
-		{
 	    };
 	}
 };

@@ -7,7 +7,6 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Base64;
 
-import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.UnavailableException;
@@ -16,7 +15,6 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.annotation.MultipartConfig;
-import javax.servlet.http.HttpSession;
 import javax.servlet.http.Part;
 
 import bean.Song;
@@ -124,6 +122,12 @@ public class UploadSong extends HttpServlet
 			String filename = filePart.getSubmittedFileName();
 			mimeType = getServletContext().getMimeType(filename);	
 		}
+		else
+		{
+			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+			response.getWriter().println("Audio file can't be null");
+			return;
+		}
 		
 		if(fileStream.available()==0 || !mimeType.startsWith("audio/"))
 		{
@@ -140,6 +144,8 @@ public class UploadSong extends HttpServlet
 			fileStream = filePart.getInputStream();
 			String filename = filePart.getSubmittedFileName();
 			mimeType = getServletContext().getMimeType(filename);	
+			
+			s.setImage(Base64.getEncoder().encodeToString(fileStream.readAllBytes()));
 		}
 		
 		if(fileStream.available()==0)
@@ -153,8 +159,7 @@ public class UploadSong extends HttpServlet
 			return;
 		}
 		
-		s.setImage(Base64.getEncoder().encodeToString(fileStream.readAllBytes()));
-	    
+		
 		SongDAO sDAO = new SongDAO(connection);
 		
 		//writes new song to database
@@ -162,7 +167,7 @@ public class UploadSong extends HttpServlet
 		{
 			sDAO.uploadSong(s);
 			request.getSession().setAttribute("lastSong", s);
-			response.sendRedirect(getServletContext().getContextPath() + "/upload_success.jsp");
+			response.setStatus(HttpServletResponse.SC_OK);
 		} 
 		catch (SQLException e) 
 		{
