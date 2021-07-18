@@ -98,7 +98,7 @@
 				</label>
 		    	</p>
 
-<p>
+				<p>
 				<label class="custom-file-upload"><b>Image File:</b>
 					<input type="file" name ="image" accept="image/*">
 				</label>

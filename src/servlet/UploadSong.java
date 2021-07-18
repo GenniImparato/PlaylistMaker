@@ -122,6 +122,11 @@ public class UploadSong extends HttpServlet
 			String filename = filePart.getSubmittedFileName();
 			mimeType = getServletContext().getMimeType(filename);	
 		}
+		else
+		{
+			redirectToErrorPage(request, response, "Audio file can't be null");
+			return;
+		}
 		
 		if(fileStream.available()==0 || !mimeType.startsWith("audio/"))
 		{
@@ -139,6 +144,8 @@ public class UploadSong extends HttpServlet
 			mimeType = getServletContext().getMimeType(filename);	
 		}
 		
+		s.setImage(Base64.getEncoder().encodeToString(fileStream.readAllBytes()));
+		
 		if(fileStream.available()==0)
 		{
 			s.setImage(null);
@@ -149,8 +156,7 @@ public class UploadSong extends HttpServlet
 			return;
 		}
 		
-		s.setImage(Base64.getEncoder().encodeToString(fileStream.readAllBytes()));
-	    
+		
 		SongDAO sDAO = new SongDAO(connection);
 		
 		//writes new song to database

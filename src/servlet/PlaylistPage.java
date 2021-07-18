@@ -69,13 +69,7 @@ public class PlaylistPage extends HttpServlet
 		}
 		else 
 		{
-			if (session == null || session.getAttribute("currentUser") == null) 
-			{
-				String path = getServletContext().getContextPath() + "/login.html";
-				response.sendRedirect(path);
-				return;
-			}
-			
+		
 			int userId = ((User) session.getAttribute("currentUser")).getId();
 			
 			Integer playlistId = null;
