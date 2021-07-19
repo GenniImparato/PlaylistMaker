@@ -143,21 +143,20 @@ public class UploadSong extends HttpServlet
 		{
 			fileStream = filePart.getInputStream();
 			String filename = filePart.getSubmittedFileName();
-			mimeType = getServletContext().getMimeType(filename);	
+			mimeType = getServletContext().getMimeType(filename);
 			
 			s.setImage(Base64.getEncoder().encodeToString(fileStream.readAllBytes()));
+			
+			if(mimeType!=null && !mimeType.startsWith("image/"))
+			{
+				s.setImage(null);
+				response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+				response.getWriter().println("Invalid image file");
+				return;
+			}			
 		}
-		
-		if(fileStream.available()==0)
-		{
+		else
 			s.setImage(null);
-		}
-		else if(!mimeType.startsWith("image/"))
-		{
-			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-			response.getWriter().println("Invalid image file");
-			return;
-		}
 		
 		
 		SongDAO sDAO = new SongDAO(connection);
